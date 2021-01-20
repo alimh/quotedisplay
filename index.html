@@ -3,14 +3,13 @@
   <title>Quote of the Day</title>
   </head>
 <body>
-<h1>Quote of the Day</h1>
-<p id="quote">Random quote of the day</p>
+<p id="quote">"You are the semicolon to my statements"</p>
 <script>
   fetch("https://type.fit/api/quotes").then(function(res) {
     return res.json();
   }).then(function(data) {
-    var i = Math.floor(Math.random() * data.length);
-    document.getElementById("quote").innerHTML = data[i].text.concat(' --').concat(data[i].author);
+    const i = Math.floor(Math.random() * data.length);
+    document.getElementById("quote").innerHTML = data[i].text.concat(' --').concat(data[i].author || 'unknown');
   });
   
 </script>
