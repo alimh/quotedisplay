@@ -17,9 +17,10 @@
     <pre id="content" style="white-space: pre-wrap;"></pre>
 
     <script type="text/javascript">
+     var { CLIENT_ID, API_KEY } = require('./env.js');
       // Client ID and API key from the Developer Console
-      var CLIENT_ID = process.env.CLIENT_ID;
-      var API_KEY = process.env.API_KEY;
+      // var CLIENT_ID = process.env.CLIENT_ID;
+      // var API_KEY = process.env.API_KEY;
 
       // Array of API discovery doc URLs for APIs used by the quickstart
       var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
