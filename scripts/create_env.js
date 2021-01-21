@@ -1,3 +1,2 @@
 var fs = require('fs');
-fs.writeFileSync('./.env', `var API_KEY='${process.env.API_KEY}';\nvar CLIENT_ID='${process.env.CLIENT_ID}';\n`);
-fs.writeFileSync('./.test.env', `var API_KEY='${process.env.API_KEY}';\nvar CLIENT_ID='${process.env.CLIENT_ID}';\n`);
+fs.writeFileSync('./.env', `API_KEY=${process.env.API_KEY}\nREACT_CLIENT_ID=${process.env.CLIENT_ID}\n`);
