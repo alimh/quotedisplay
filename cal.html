@@ -44,11 +44,11 @@ var API_KEY = "";
        *  listeners.
        */
       async function initClient() {
-        var res = await fetch('./netlify/functions/env_vars');
+        var res = await fetch('.netlify/functions/env_vars');
         var json = await res.json();
         CLIENT_ID = json.CLIENT_ID;
         API_KEY = json.API_KEY;
-        
+
         gapi.client.init({
           apiKey: API_KEY,
           clientId: CLIENT_ID,
