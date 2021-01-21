@@ -17,12 +17,11 @@
     <pre id="content" style="white-space: pre-wrap;"></pre>
 
     <script type="text/javascript">
-    console.log('GATSBY_CLIENT');
-    console.log(GATSBY_CLIENT_ID || null);
       // Client ID and API key from the Developer Console
       // var CLIENT_ID = process.env.CLIENT_ID;
       // var API_KEY = process.env.API_KEY;
-
+var CLIENT_ID = "";
+var API_KEY = "";
       // Array of API discovery doc URLs for APIs used by the quickstart
       var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
 
@@ -44,7 +43,12 @@
        *  Initializes the API client library and sets up sign-in state
        *  listeners.
        */
-      function initClient() {
+      async function initClient() {
+        var res = await fetch('./netlify/functions/env_vars');
+        var json = await res.json();
+        CLIENT_ID = json.CLIENT_ID;
+        API_KEY = json.API_KEY;
+        
         gapi.client.init({
           apiKey: API_KEY,
           clientId: CLIENT_ID,
