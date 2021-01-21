@@ -5,12 +5,15 @@
     <meta charset="utf-8" />
   </head>
   <body>
-    <p>Google Calendar API Quickstart</p>
+    <p id="header">Events for Today</p>
 
+    <ul id="event-list">
+
+    </ul>
     <!--Add buttons to initiate auth sequence and sign out-->
     <button id="authorize_button" style="display: none;">Authorize</button>
     <button id="signout_button" style="display: none;">Sign Out</button>
-
+    
     <pre id="content" style="white-space: pre-wrap;"></pre>
 
     <script type="text/javascript">
@@ -94,9 +97,16 @@
        * @param {string} message Text to be placed in pre element.
        */
       function appendPre(message) {
-        var pre = document.getElementById('content');
+        var ul = document.getElementById('event-list');
+        var li = document.createElement('li');
         var textContent = document.createTextNode(message + '\n');
-        pre.appendChild(textContent);
+        li.appendChild(textContent);
+        ul.appendChild(li);
+      }
+
+      function editHeader(date) {
+        var header = document.getElementById('header')
+        header.innerText = 'Events for '.concat(date);
       }
 
       /**
@@ -104,31 +114,57 @@
        * the authorized user's calendar. If no events are found an
        * appropriate message is printed.
        */
-      function listUpcomingEvents() {
-        gapi.client.calendar.events.list({
-          'calendarId': 'primary',
-          'timeMin': (new Date()).toISOString(),
-          'showDeleted': false,
-          'singleEvents': true,
-          'maxResults': 10,
-          'orderBy': 'startTime'
-        }).then(function(response) {
-          var events = response.result.items;
-          appendPre('Upcoming events:');
+      async function listUpcomingEvents() {
+        var now = new Date();
+        var today = new Date(now.toDateString());
+        var tomorrow = new Date(today.getTime() + 86400000);
 
-          if (events.length > 0) {
-            for (i = 0; i < events.length; i++) {
-              var event = events[i];
-              var when = event.start.dateTime;
-              if (!when) {
-                when = event.start.date;
+        editHeader(now.toDateString().concat('...'));
+        // get all the calendar
+        var calIds = [];
+        var resCalIds = await gapi.client.calendar.calendarList.list();
+        resCalIds.result.items.forEach(function(c) {
+            calIds.push(c.id);
+          });
+
+          var calFetches = [];
+          calIds.forEach(function(c) {
+            calFetches.push(gapi.client.calendar.events.list({
+              'calendarId': c,
+              'timeMin': today.toISOString(),
+              'timeMax': tomorrow.toISOString(),
+              'showDeleted': false,
+              'singleEvents': true,
+              'maxResults': 10,
+              'orderBy': 'startTime'
+            }));
+          });
+
+          var events = [];
+          Promise.allSettled(calFetches).then(function(res) {
+            res.forEach(function(r) {
+              if(r.status === 'fulfilled') {
+                r.value.result.items.forEach(function(i) {
+                  events.push({summary: i.summary, when: i.start.dateTime || null, allDay: !!i.start.date});
+                });
               }
-              appendPre(event.summary + ' (' + when + ')')
-            }
-          } else {
-            appendPre('No upcoming events found.');
-          }
-        });
+            });
+            // all events are now in events[]
+            // sort and display
+           events.sort(function(a,b) { 
+             if(a.allDay) { return -1; } 
+             if(b.allDay) { return 1; } 
+             var dateA = new Date(a);
+             var dateB = new Date(b);
+             if(dateA < dateB) { return -1; }
+             return 1;
+           });
+           editHeader(now.toDateString());
+           events.forEach(function(e) {
+             if(e.allDay || e.when === null) appendPre(e.summary);
+             else appendPre(new Date(e.when).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'}) + ': ' + e.summary);
+            });
+          });
       }
 
     </script>
